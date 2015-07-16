@@ -88,7 +88,7 @@ public class MainWindow extends JFrame {
 		add(btnSearch);
 		add(btnGitHub);
 
-		setSize(300, 200);
+		setSize(350, 280);
 		setTitle("Birthday memo");
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
