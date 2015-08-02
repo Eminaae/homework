@@ -1,0 +1,7 @@
+http://www.yahoo.com Yahoo
+http://www.yoga.com Yoga
+https://www.dartlang.org Dart
+http://www.java2s.com/ Code Java
+http://www.cisco.com/ Cisco
+https://www.google.ba/ Google
+http://www.gmail.com Gmail
