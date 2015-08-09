@@ -29,21 +29,21 @@ public class Server {
 			System.out.println("Client connected");
 			BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
 			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
+			File file = new File(reader.readLine());
 			
-			String filesOnServer = "";
-			while(client.isConnected()){
-				filesOnServer = reader.readLine();
-				File file = new File(filesOnServer);
-				//Tests whether the file denoted by this abstract pathname is a normal file. A file is normal if it is not a directory.
-				if(file.isFile() && file.exists()){
-					writer.write("1");
-				}else{
-					writer.write("0");
-				}
+			//Tests whether the file denoted by this abstract pathname is a normal file. A file is normal if it is not a directory.
+			if (file.isFile() && file.exists()) {
+				writer.write("1");
+				
+			} else {
+				writer.write("0");
 				writer.newLine();
 				writer.flush();
-			//	writer.close();
 			}
+			writer.close();
+			reader.close();
+			client.close();
+			server.close();
 		} catch (IOException e) {
 			System.out.println("Failed or interrupted I/O operations");
 			e.printStackTrace();

@@ -73,19 +73,18 @@ public class InterruptingThread extends JFrame{
 	 * @author USER
 	 *
 	 */
-	private static class MyThread implements Runnable{
+	private static class MyThread implements Runnable {
 
 		@SuppressWarnings("static-access")
 		@Override
 		public void run() {
-			
-			for(char i = 65; i < 91; i++){
-				label.setText(label.getText() + i);
-				try {
+			try {
+				for (char i = 65; i < 91; i++) {
+					label.setText(label.getText().toLowerCase() + i);
 					myThread.sleep(1000);
-				} catch (InterruptedException e) {
-					System.out.println("Interrupted");
 				}
+			} catch (InterruptedException e) {
+				System.out.println("Interrupted");
 			}
 		}
 	}

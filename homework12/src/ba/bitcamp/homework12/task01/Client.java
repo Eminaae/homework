@@ -29,14 +29,18 @@ public class Client {
 			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
 			
 			Scanner in = new Scanner(System.in);
-			while(true){
+			
 				System.out.println("Enter the file path you are looking for...");
 				writer.write(in.nextLine());
 				writer.newLine();
 				writer.flush();
 				
 				System.out.println("Response from server -> " + reader.readLine());
-			}
+			
+				writer.close();
+				in.close();
+				client.close();
+				reader.close();
 			} catch (IOException e) {
 			System.out.println("Failed or interrupted I/O operations.");
 		
