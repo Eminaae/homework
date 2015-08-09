@@ -21,14 +21,17 @@ public class Server {
 	public static final int PORT = 8888;
 	
 	public static void main(String[] args) {
-		
+		ServerSocket server = null;
+		Socket client = null;
+		BufferedReader reader = null;
+		BufferedWriter writer = null;
 		try {
-			ServerSocket server = new ServerSocket(PORT);
+			server = new ServerSocket(PORT);
 			System.out.println("Listening for a client...");
-			Socket client = server.accept();
+			client = server.accept();
 			System.out.println("Client connected");
-			BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
+			reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
+			writer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
 			File file = new File(reader.readLine());
 			
 			//Tests whether the file denoted by this abstract pathname is a normal file. A file is normal if it is not a directory.
@@ -46,7 +49,15 @@ public class Server {
 			server.close();
 		} catch (IOException e) {
 			System.out.println("Failed or interrupted I/O operations");
-			e.printStackTrace();
+			if(!writer.equals(null) || !client.equals(null) || !reader.equals(null)){
+				try {
+					writer.close();
+					client.close();
+					reader.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
 		}
 	}
 }

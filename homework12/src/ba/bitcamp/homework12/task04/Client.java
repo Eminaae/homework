@@ -31,7 +31,7 @@ public class Client {
 			writer.flush();
 			//output stream for the network socket
 			OutputStream out = client.getOutputStream(); //sends image to the server
-			FileInputStream in = new FileInputStream(new File("/src/icon.png")); //reads from image file
+			FileInputStream in = new FileInputStream(new File("/src/image.jpg")); //reads from image file
 			//**UtilityMethods.getBytesFromFileInputStream(in);
 			byte[] array = new byte[1024];
 			int readBytes;

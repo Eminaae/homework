@@ -22,13 +22,17 @@ public class Client {
 	
 	public static void main(String[] args) {
 		
+		Socket client = null;
+		BufferedReader reader = null;
+		BufferedWriter writer = null;
+		Scanner in = null;
 		try {
-			Socket client = new Socket(HOST, PORT);
+			client = new Socket(HOST, PORT);
 			System.out.println("Connecting to server...");
-			BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
+			reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
+			writer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
 			
-			Scanner in = new Scanner(System.in);
+			in = new Scanner(System.in);
 			
 				System.out.println("Enter the file path you are looking for...");
 				writer.write(in.nextLine());
@@ -43,6 +47,16 @@ public class Client {
 				reader.close();
 			} catch (IOException e) {
 			System.out.println("Failed or interrupted I/O operations.");
+			if(!writer.equals(null) || !in.equals(null) || !client.equals(null) || !reader.equals(null)){
+				try {
+					writer.close();
+					in.close();
+					client.close();
+					reader.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
 		
 		}
 		

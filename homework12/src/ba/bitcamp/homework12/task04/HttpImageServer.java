@@ -16,13 +16,20 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+/**
+ * HTTP server can receive image file from client, we will be able to open that file in browser. Client is sending
+ * image file to HTTP server, HTTP server saves image file and puts link to received image file on browser.
+ * 
+ * @author emina.a
+ *
+ */
 public class HttpImageServer {
 
 	private static final int PORT = 8000;
-	
+	private static ArrayList<File> files = new ArrayList<File>(); // list of received files
 	
 	public static void main(String[] args) {
-		ArrayList<File> files = new ArrayList<File>(); // list of received files
+	
 		ServerSocket httpServer;
 		try {
 			httpServer = new ServerSocket(PORT);
@@ -41,7 +48,7 @@ public class HttpImageServer {
 					if (line.contains("GET")) {
 						String[] part = line.split(" ");
 						String wantedAddress = part[1]; // this part contains requested part
-						if (wantedAddress.equals("/") || wantedAddress.equals("/src/icon.png")) {
+						if (wantedAddress.equals("/") || wantedAddress.equals("/image.jpg")) {
 							// create reader for reading html code(index.html)
 							BufferedReader htmlRead = new BufferedReader(new FileReader(new File("/index.html")));
 							// writer writes string variable on local web site
@@ -52,7 +59,7 @@ public class HttpImageServer {
 								htmlContent += htmlRead.readLine();
 							}
 							for (File f : files) {
-								htmlContent += "<h1 align='center'><a href = /"+ f.toString() + ">"+ f.getName().substring(0, 7) + "</a></h1>";
+								htmlContent += "<h1><a href = /"+ f.toString() + ">"+ f.getName().substring(0, 9) + "</a></h1>";
 							}
 							htmlContent += "</body></html>";
 							htmlWrite.write(htmlContent);
@@ -81,9 +88,9 @@ public class HttpImageServer {
 					} else if (line.contains("PUT")) {
 						String date = Calendar.getInstance().getTime() + "";//will contain present date and time.
 						String time = date.split(" ")[3];
-						String name = "icon" + time.split(":")[0]+ time.split(":")[1] + time.split(":")[2];//represents name of received file
+						String name = "image" + time.split(":")[0]+ time.split(":")[1] + time.split(":")[2];//represents name of received file
 						InputStream is = client.getInputStream();// Declaring stream that will receive stream from client.
-						File file = new File(name + ".png");// Creating new file.
+						File file = new File(name + ".jpg");// Creating new file.
 						FileOutputStream fileSave = new FileOutputStream(file);//put received files in the stream
 						
 						byte[] array = new byte[1024];
