@@ -1,22 +1,33 @@
 package ba.bitcamp.homework10.task01;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Arrays;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+
+import com.sun.security.ntlm.Client;
 
 import ba.bitcamp.homework10.shared.SharedMethods;
 
@@ -28,111 +39,169 @@ import ba.bitcamp.homework10.shared.SharedMethods;
  * @author USER
  *
  */
-public class ChatServer extends JFrame implements ActionListener, Runnable {
-	
-	private static final long serialVersionUID = -4866337574069034139L;
-	//attributes declaration
-	private BufferedWriter writer;
-	private BufferedReader reader;;
-	private static final int PORT = 8788;
-	ServerSocket server;
-	JFrame serverWindow;
-	JPanel panelServer;
-	JTextArea msgArea;
-	JButton msgSend;
-	JTextField msgField;
-	Thread t;
-	private JScrollBar scroll;
+public class ChatServer extends JFrame {
 
+	private static final long serialVersionUID = -298617982912721581L;
+	private static final int PORT = 7543;
+	private Socket client;
+	private ServerSocket server;
+
+	private JPanel panel = new JPanel();
+	private JPanel areaPanel = new JPanel();
+	private JPanel textPanel = new JPanel();
+	private JTextArea area = new JTextArea();
+	private JScrollPane scroll = new JScrollPane(area);
+	private JTextField text = new JTextField();
+	private BufferedReader reader;
+	private BufferedWriter writer;
+	private String areaText = "";
+	
 	/**
-	 *  Default constructor constructs chat server window and server socket.
+	 * Constructor of server that enables server to receive and send message to
+	 * the client.
 	 */
 	public ChatServer() {
-		// chat server
-		serverWindow = new JFrame("ChatServer");
-		panelServer = new JPanel();
-		
-		msgArea = new JTextArea();
-		msgField = new JTextField();
-		msgSend = new JButton("Send");
-		msgSend.addActionListener(this);// adding an action listener to send button
-		
-		serverWindow.add(panelServer);
-		panelServer.add(msgArea);
-		panelServer.add(msgField);
-		panelServer.add(msgSend);
-		
-		panelServer.setLayout(new BorderLayout());
-		panelServer.add(msgArea, BorderLayout.NORTH);// adding text area to the panel
-		panelServer.add(msgField,BorderLayout.CENTER);
-		panelServer.add(msgSend, BorderLayout.SOUTH);
-		add(scroll = new JScrollBar(), BorderLayout.EAST);
-		
-		
-		serverWindow.setLocationRelativeTo(null);
-		serverWindow.setSize(300, 400);
-		serverWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		serverWindow.setResizable(false);
-		//serverWindow.pack();
-		serverWindow.setVisible(true);
+		panel.setLayout(new BorderLayout());
+		areaPanel.setLayout(new BorderLayout());
+		areaPanel.add(scroll);
 
-		System.out.println("Connecting to port" + PORT + "....");
+		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		area.setEditable(false);
 
-		try {
+		textPanel.setLayout(new BorderLayout());
+		textPanel.setBorder(BorderFactory.createTitledBorder("Write message"));
+		textPanel.add(text);
 
-			server = new ServerSocket(PORT);
-			Socket clientSocket = server.accept();
-			System.out.println("Client connected" + clientSocket);
-			reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); // reads input from input stream reader
-			writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));//reads output from output stream
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+		text.addKeyListener(new ServerAction());
+		panel.add(areaPanel, BorderLayout.CENTER);
+		panel.add(textPanel, BorderLayout.SOUTH);
+		add(panel);
 
-		t = new Thread(this); // starts a new thread
-		t.setDaemon(true); // sets a thread as daemon
-		t.start();
+		setSize(400, 500);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setLocation(100, 200);
+		setTitle("Server Chat");
+		setVisible(true);
+
+		runServer();
 	}
 
 	/**
-	 * Thread running as a process in a background, reading lines and appends them to msg area
+	 * Inner class implementing key listener. KeyPressed method enables
+	 * user to send message if ENTER is pressed.
 	 */
-	@Override
-	public void run() {
-		while (true) {
-			try {
-				String s = reader.readLine(); // reads input from text field
-				msgArea.append(s + "\n");
-				SharedMethods.getAction(reader.readLine());
-				System.out.println(s);
-			} catch (Exception e2) {
+	private class ServerAction implements KeyListener {
+
+		/**
+		 * Enables server to send message when key ENTER is pressed.
+		 */
+		public void keyPressed(KeyEvent e) {
+			
+			if (e.getKeyCode() == KeyEvent.VK_ENTER && !text.getText().equals("")) {
+				try {
+					writer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
+					writer.write(text.getText());
+					writer.newLine();
+					writer.flush();
+					area.append("Server: " + text.getText() + "\n");
+					text.setText("");
+					
+				} catch (IOException e1) {
+					if(writer!= null)
+						try {
+							writer.close();
+						} catch (IOException e2) {
+							e2.printStackTrace();
+						}
+					if(client != null)
+						try {
+							client.close();
+						} catch (IOException e2) {
+							e2.printStackTrace();
+						}
+					System.out.println("Failed or interrupted I/O operations");
+					e1.printStackTrace();
+				}
 			}
 		}
+
+		public void keyReleased(KeyEvent e) {
+		}
+
+		public void keyTyped(KeyEvent e) {
+		}
 	}
 
 	/**
-	 * ActionPerformed method will be called after clicking on send button.
-	 * The value of text field will be written in buffered writer, appended to the string and at the
-	 * end text field will be cleaned.
+	 * Creates server socket and enables server to receive messages from
+	 * clients.
 	 */
-	@Override
-	public void actionPerformed(ActionEvent e) {
-
-		if (e.getSource() == msgSend) {
-			String s = msgField.getText();
+	public void runServer() {
+			
 			try {
-				writer.write(s);
-				writer.newLine();
-				writer.flush();
-				msgArea.append("me: " + s + "\n");
-				msgField.setText(""); // clean the text field
+				server = new ServerSocket(PORT);
+				client = server.accept();
+				reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
+			
+		try {
+			while (true) {
+				areaText = "Client: " + reader.readLine();
+				if (areaText.indexOf("/open") != -1) {
+					File file = new File(SharedMethods.getAddress(areaText, "/open", 6));
+					Desktop.getDesktop().open(file);
+				} else if (areaText.indexOf("/web") != -1) {
+					Desktop.getDesktop().browse(new URL(SharedMethods.getAddress(areaText, "/web",5)).toURI());
+				} else if (areaText.indexOf("/delete") != -1) {
+					File file = new File(SharedMethods.getAddress(areaText, "/delete", 8));
+					file.delete();
+				} else if (areaText.indexOf("/list") != -1) {
+					File file = new File(SharedMethods.getAddress(areaText,"/list", 6));
+					area.append("Server: " + SharedMethods.directories(file) + "\n");
+					writer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
+					writer.write(SharedMethods.directories(file));
+					writer.newLine();
+					writer.flush();
+					
+				} else {
+					area.append(areaText + "\n");
+					area.setCaretPosition(area.getDocument().getLength());
+				}
+			}
+		} catch (IOException | URISyntaxException e) {
+			if(writer != null)
+				try {
+					writer.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			if(reader !=null)
+				try {
+					reader.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			if(client != null)
+				try {
+					reader.close();
+				} catch (IOException e2) {
+					e2.printStackTrace();
+				}
+			if(server != null)
+				try {
+					server.close();
+				} catch (IOException e3) {
+					e3.printStackTrace();
+				}
+				
+			System.out.println("Failed or interrupted I/O operations, or string could not be parsed as a URI reference");
+			//e.printStackTrace();
 		}
 	}
 
 	public static void main(String[] args) {
-		ChatServer server = new ChatServer(); //instantiate a chat server
+		new ChatServer();
 	}
 }
