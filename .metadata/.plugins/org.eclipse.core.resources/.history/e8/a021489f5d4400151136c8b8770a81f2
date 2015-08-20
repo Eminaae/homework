@@ -1,0 +1,30 @@
+package ba.bitcamp.homework13.task02;
+
+import java.awt.image.BufferedImage;
+
+import javax.imageio.ImageIO;
+import javax.swing.JPanel;
+/**
+ * My panel loading image
+ * @author USER
+ *
+ */
+public class ImagePanel extends JPanel {
+	
+	BufferedImage image;
+
+	/**
+	 * ImagePanel Constructor 
+	 */
+	public ImagePanel(){
+		setSize(600,400);
+		setVisible(true);
+	}
+	
+	public void loadImage(){
+		image = ImageIO.read(ImagePanel.class.getResource(""))
+	}
+	public static void main(String[] args) {
+		
+	}
+}

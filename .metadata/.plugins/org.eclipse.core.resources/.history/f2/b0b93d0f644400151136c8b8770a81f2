@@ -1,0 +1,83 @@
+package ba.bitcamp.homework13.task02;
+
+import java.awt.Graphics;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+/**
+ * My panel loading image
+ * @author USER
+ *
+ */
+public class ImagePanel extends JPanel {
+	
+	private BufferedImage image;
+	private String originalImg = "src/public/picture.jpg";
+	private String newImg ="src/public/newImage.jpg"; 
+	boolean click = false; // declaring and initialising boolean
+
+	/**
+	 * ImagePanel Constructor 
+	 */
+	public ImagePanel(){
+		setSize(600,400);
+		setVisible(true);
+		loadImage(originalImg);
+		
+		//adding mouse listener to panel clickin on panel will load new image
+		this.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(click){
+					loadImage(originalImg);
+					click = false;
+				}else{
+					loadImage(newImg);
+				}
+				super.mouseClicked(e);
+				click = true;
+			}
+		});
+	}
+	
+	public void loadImage(String str){
+		try {
+			image = ImageIO.read(new File(originalImg));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	protected void paintComponent(Graphics g){
+		super.paintComponent(g);
+		g.drawImage(image, 0, 0, 600, 400, this);
+	}
+	
+	public static void main(String[] args) {
+		
+		/**
+		 *  This method should is used when an application thread needs to update the GUI.
+		 */
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				JFrame frame = new JFrame();
+				frame.setSize(600, 400);
+				frame.setLocationRelativeTo(null);
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame.setTitle("Buffered Image");
+				frame.setVisible(true);
+				frame.add(new ImagePanel());
+				
+			}
+		});
+	}
+}
