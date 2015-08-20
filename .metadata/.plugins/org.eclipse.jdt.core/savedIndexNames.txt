@@ -1,14 +1,1 @@
 INDEX VERSION 1.127+C:\Users\USER\homework\.metadata\.plugins\org.eclipse.jdt.core
-3587945581.index
-631447577.index
-583984128.index
-1288889815.index
-3435169068.index
-3165286819.index
-2732360955.index
-1439290518.index
-1386483855.index
-3038526856.index
-1003869505.index
-3417129269.index
-3256552734.index
