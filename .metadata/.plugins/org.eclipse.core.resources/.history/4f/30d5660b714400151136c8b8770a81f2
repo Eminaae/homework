@@ -1,9 +1,0 @@
-package ba.bitcamp.homework13.task01;
-
-public class FilesWorkerThreads {
-
-	public static void main(String[] args) {
-
-	}
-
-}
